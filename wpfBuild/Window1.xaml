@@ -1,0 +1,1337 @@
+﻿<Window 
+	x:Class="wpfBuild.Window1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:wpfBuild"
+	xmlns:customControls="clr-namespace:wpfBuild.controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
+	xmlns:System="clr-namespace:System;assembly=mscorlib"
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Classic"
+	xmlns:uc="clr-namespace:KineticScrollingPrototype"
+    xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+	Title="IVCS" Width="800" Height="600" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen" Loaded="Window_Loaded" Name="window_main" FontFamily="./Fonts\#Century Gothic" Closing="window_main_Closing">
+    <Window.Resources>
+        
+        <!--
+        <local:ButtonContentConverter x:Key="buttonContentConverter"/>
+        -->
+        
+        <LinearGradientBrush x:Key="Brush1" EndPoint="1,0.5" StartPoint="0,0.5">
+            <GradientStop Color="#FF000000" Offset="0"/>
+            <GradientStop Color="#FFFFFFFF" Offset="1"/>
+        </LinearGradientBrush>
+
+        <ControlTemplate x:Key="audioIcon">
+            <Image Source="Resources/images\silk\music.png" Width="17" Height="16" />
+        </ControlTemplate>
+        
+        <ControlTemplate x:Key="videoIcon">
+            <Image Source="Resources/images\silk\film.png" Width="17" Height="16" />
+        </ControlTemplate>
+        
+        <ControlTemplate x:Key="imageIcon">
+            <Image Source="Resources/images\silk\picture.png" Width="17" Height="16" />
+        </ControlTemplate>
+
+<!--
+        <DataTemplate x:Key="PhotoTemplate">
+            <Image Source="{Binding Photo, Converter={StaticResource converter}}" Width="48" Height="48"/>
+        </DataTemplate>
+-->
+
+		<Style x:Key="MediaInfoLabel" TargetType="{x:Type TextBlock}">
+			<Setter Property="HorizontalAlignment" Value="Right" />
+			<Setter Property="FontSize" Value="13" />
+			<Setter Property="FontWeight" Value="Bold" />
+			<Setter Property="Foreground" Value="DodgerBlue" />
+		</Style>
+		<Style x:Key="MediaInfoLabelRightCol" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MediaInfoLabel}">
+			<Setter Property="HorizontalAlignment" Value="Left" />
+		</Style>
+		
+		<!-- IDEA: not sure if textwrapping should be added to all elements, so it's just on title for now-->
+		<Style x:Key="MediaInfoValue" TargetType="{x:Type TextBlock}">
+			<Setter Property="HorizontalAlignment" Value="Right" />
+			<Setter Property="FontSize" Value="11" />
+			<Setter Property="Foreground" Value="{DynamicResource whitey}" />
+			<Setter Property="Margin" Value="0,-1,0,1" />
+		</Style>
+		<Style x:Key="MediaInfoValueRightCol" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource MediaInfoValue}">
+			<Setter Property="HorizontalAlignment" Value="Left" />
+		</Style>
+		
+		
+        <!-- Rating Cell-->
+        <Style x:Key="StarToggleButton" TargetType="{x:Type ToggleButton}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Canvas Width="12" Height="12">
+                            <Path Name="star" Fill="Gray" Data="M 5,0 L 4,4 L 0,4 L 3,7 L 2,11 L 5,9 L 6,9 L 9,11 L 8, 7 L 11,4 L 7,4 L 6,0"/>
+                        </Canvas>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="star" Property="Fill" Value="Gold"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+			<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        </Style>
+        
+        <Style x:Key="HorizontalSliderUpThumbStyle" TargetType="{x:Type Thumb}">
+        	<Setter Property="OverridesDefaultStyle" Value="true"/>
+        	<Setter Property="Foreground" Value="{x:Null}"/>
+        	<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+        	<Setter Property="Height" Value="21"/>
+        	<Setter Property="Width" Value="11"/>
+        	<Setter Property="Template">
+        		<Setter.Value>
+        			<ControlTemplate TargetType="{x:Type Thumb}">
+        				<Canvas SnapsToDevicePixels="true">
+        					<Path Fill="{TemplateBinding Background}" Data="M 11 21 L 0 21 L 0 6 L 5 1 L 6 1 L 11 6 z"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" StrokeThickness="1.0" Data="M 0.5 20 L 0.5 5.5 L 5 0.5 L 5.5 0.5"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" StrokeThickness="1.0" Data="M 5.5 0.5 L 6 0.5 L 10.5 5.5 L 10.5 20.5 L 0 20.5"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" StrokeThickness="1.0" Data="M 1.5 19 L 1.5 5.5 L 5 1.5 L 5.5 1.5"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" StrokeThickness="1.0" Data="M 5.5 1.5 L 6 1.5 L 9.5 5.5 L 9.5 19.5 L 1.0 19.5"/>
+        					<Path Fill="{TemplateBinding Foreground}" Opacity="0.5" Data="M 9 19 L 2 19 L 2 6 L 5.5 2 L 9 6 z"/>
+        				</Canvas>
+        				<ControlTemplate.Triggers>
+        					<Trigger Property="IsDragging" Value="true">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        					<Trigger Property="IsEnabled" Value="false">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        				</ControlTemplate.Triggers>
+        			</ControlTemplate>
+        		</Setter.Value>
+        	</Setter>
+        </Style>
+        <Style x:Key="HorizontalSliderDownThumbStyle" TargetType="{x:Type Thumb}">
+        	<Setter Property="OverridesDefaultStyle" Value="true"/>
+        	<Setter Property="Foreground" Value="{x:Null}"/>
+        	<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+        	<Setter Property="Height" Value="21"/>
+        	<Setter Property="Width" Value="11"/>
+        	<Setter Property="Template">
+        		<Setter.Value>
+        			<ControlTemplate TargetType="{x:Type Thumb}">
+        				<Canvas SnapsToDevicePixels="true">
+        					<Path Fill="{TemplateBinding Background}" Data="M 11 0 L 0 0 L 0 15 L 5 21 L 6 21 L 11 15 z"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" StrokeThickness="1.0" Data="M 10 0.5 L 0.5 0.5 L 0.5 15.5 L 5 20.5 L 5.5 20.5"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" StrokeThickness="1.0" Data="M 5.5 20.5 L 6 20.5 L 10.5 15.5 L 10.5 0"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" StrokeThickness="1.0" Data="M 9 1.5 L 1.5 1.5 L 1.5 15.5 L 5 19.5 L 5.5 19.5"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" StrokeThickness="1.0" Data="M 5.5 19.5 L 6 19.5 L 9.5 15.5 L 9.5 1"/>
+        					<Path Fill="{TemplateBinding Foreground}" Opacity="0.5" Data="M 9 2 L 2 2 L 2 15 L 5.5 19 L 9 15 z"/>
+        				</Canvas>
+        				<ControlTemplate.Triggers>
+        					<Trigger Property="IsDragging" Value="true">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        					<Trigger Property="IsEnabled" Value="false">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        				</ControlTemplate.Triggers>
+        			</ControlTemplate>
+        		</Setter.Value>
+        	</Setter>
+        </Style>
+        <Style x:Key="SliderRepeatButtonStyle" TargetType="{x:Type RepeatButton}">
+        	<Setter Property="OverridesDefaultStyle" Value="true"/>
+        	<Setter Property="IsTabStop" Value="false"/>
+        	<Setter Property="Focusable" Value="false"/>
+        	<Setter Property="Background" Value="Transparent"/>
+        	<Setter Property="Template">
+        		<Setter.Value>
+        			<ControlTemplate TargetType="{x:Type RepeatButton}">
+        				<Border Background="{TemplateBinding Background}"/>
+        			</ControlTemplate>
+        		</Setter.Value>
+        	</Setter>
+        </Style>
+        <Style x:Key="HorizontalSliderThumbStyle" TargetType="{x:Type Thumb}">
+        	<Setter Property="OverridesDefaultStyle" Value="true"/>
+        	<Setter Property="Foreground" Value="{x:Null}"/>
+        	<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+        	<Setter Property="Height" Value="21"/>
+        	<Setter Property="Width" Value="11"/>
+        	<Setter Property="Template">
+        		<Setter.Value>
+        			<ControlTemplate TargetType="{x:Type Thumb}">
+        				<Microsoft_Windows_Themes:ClassicBorderDecorator Background="{TemplateBinding Background}" BorderBrush="{x:Static Microsoft_Windows_Themes:ClassicBorderDecorator.ClassicBorderBrush}" BorderStyle="Raised" BorderThickness="3">
+        					<Rectangle Fill="{TemplateBinding Foreground}" Margin="-1" x:Name="ForegroundRect" Opacity="0.5"/>
+        				</Microsoft_Windows_Themes:ClassicBorderDecorator>
+        				<ControlTemplate.Triggers>
+        					<Trigger Property="IsDragging" Value="true">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        					<Trigger Property="IsEnabled" Value="false">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        				</ControlTemplate.Triggers>
+        			</ControlTemplate>
+        		</Setter.Value>
+        	</Setter>
+        </Style>
+        <Style x:Key="VerticalSliderLeftThumbStyle" TargetType="{x:Type Thumb}">
+        	<Setter Property="OverridesDefaultStyle" Value="true"/>
+        	<Setter Property="Foreground" Value="{x:Null}"/>
+        	<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+        	<Setter Property="Width" Value="21"/>
+        	<Setter Property="Height" Value="11"/>
+        	<Setter Property="Template">
+        		<Setter.Value>
+        			<ControlTemplate TargetType="{x:Type Thumb}">
+        				<Canvas SnapsToDevicePixels="true">
+        					<Path Fill="{TemplateBinding Background}" Data="M 21 11 L 21 0 L 6 0 L 0 5 L 0 6 L 6 11 z"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" StrokeThickness="1.0" Data="M 20 0.5 L 5.5 0.5 L 0.5 5 L 0.5 5.5 "/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" StrokeThickness="1.0" Data="M 0.5 5.5 L 0.5 6 L 5.5 10.5 L 20.5 10.5 L 20.5 0 "/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" StrokeThickness="1.0" Data="M 19 1.5 L 5.5 1.5 L 1.5 5 L 1.5 5.5 "/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" StrokeThickness="1.0" Data="M 1.5 5.5 L 1.5 6 L 5.5 9.5 L 19.5 9.5 L 19.5 1.0 "/>
+        					<Path Fill="{TemplateBinding Foreground}" Opacity="0.5" Data="M 19 9 L 19 2 L 6 2 L 2 5.5 L 6 9 z"/>
+        				</Canvas>
+        				<ControlTemplate.Triggers>
+        					<Trigger Property="IsDragging" Value="true">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        					<Trigger Property="IsEnabled" Value="false">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        				</ControlTemplate.Triggers>
+        			</ControlTemplate>
+        		</Setter.Value>
+        	</Setter>
+        </Style>
+        <Style x:Key="VerticalSliderRightThumbStyle" TargetType="{x:Type Thumb}">
+        	<Setter Property="OverridesDefaultStyle" Value="true"/>
+        	<Setter Property="BorderThickness" Value="0,0,0,0"/>
+        	<Setter Property="Foreground" Value="{x:Null}"/>
+        	<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+        	<Setter Property="Width" Value="21"/>
+        	<Setter Property="Height" Value="11"/>
+        	<Setter Property="Template">
+        		<Setter.Value>
+        			<ControlTemplate TargetType="{x:Type Thumb}">
+        				<Canvas SnapsToDevicePixels="true">
+        					<Path Fill="{TemplateBinding Background}" Data="M 0 11 L 0 0 L 15 0 L 21 5 L 21 6 L 15 11 z"/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}" StrokeThickness="1.0" Data="M 0.5 10 L 0.5 0.5 L 15.5 0.5 L 20.5 5 L 20.5 5.5 "/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlDarkDarkBrushKey}}" StrokeThickness="1.0" Data="M 20.5 5.5 L 20.5 6 L 15.5 10.5 L 0 10.5 "/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlLightBrushKey}}" StrokeThickness="1.0" Data="M 1.5 9 L 1.5 1.5 L 15.5 1.5 L 19.5 5 L 19.5 5.5 "/>
+        					<Path Stroke="{DynamicResource {x:Static SystemColors.ControlDarkBrushKey}}" StrokeThickness="1.0" Data="M 19.5 5.5 L 19.5 6 L 15.5 9.5 L 1 9.5 "/>
+        					<Path Fill="{TemplateBinding Foreground}" Opacity="0.5" Data="M 2 9 L 2 2 L 15 2 L 19 5.5 L 15 9 "/>
+        				</Canvas>
+        				<ControlTemplate.Triggers>
+        					<Trigger Property="IsDragging" Value="true">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        					<Trigger Property="IsEnabled" Value="false">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        				</ControlTemplate.Triggers>
+        			</ControlTemplate>
+        		</Setter.Value>
+        	</Setter>
+        </Style>
+        <Style x:Key="VerticalSliderThumbStyle" TargetType="{x:Type Thumb}">
+        	<Setter Property="OverridesDefaultStyle" Value="true"/>
+        	<Setter Property="Foreground" Value="{x:Null}"/>
+        	<Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"/>
+        	<Setter Property="Width" Value="21"/>
+        	<Setter Property="Height" Value="11"/>
+        	<Setter Property="Template">
+        		<Setter.Value>
+        			<ControlTemplate TargetType="{x:Type Thumb}">
+        				<Microsoft_Windows_Themes:ClassicBorderDecorator Background="{TemplateBinding Background}" BorderBrush="{x:Static Microsoft_Windows_Themes:ClassicBorderDecorator.ClassicBorderBrush}" BorderStyle="Raised" BorderThickness="3">
+        					<Rectangle Fill="{TemplateBinding Foreground}" Margin="-1" Opacity="0.5"/>
+        				</Microsoft_Windows_Themes:ClassicBorderDecorator>
+        				<ControlTemplate.Triggers>
+        					<Trigger Property="IsDragging" Value="true">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        					<Trigger Property="IsEnabled" Value="false">
+        						<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlLightLightBrushKey}}"/>
+        					</Trigger>
+        				</ControlTemplate.Triggers>
+        			</ControlTemplate>
+        		</Setter.Value>
+        	</Setter>
+        </Style>
+        <Style x:Key="media_position_slider" TargetType="{x:Type Slider}">
+        	<Setter Property="Stylus.IsPressAndHoldEnabled" Value="false"/>
+        	<Setter Property="Background" Value="Transparent"/>
+        	<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        	<Setter Property="Template">
+        		<Setter.Value>
+        			<ControlTemplate TargetType="{x:Type Slider}">
+        				<Border Width="{TemplateBinding Width}" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+        					<Grid>
+        						<Grid.ColumnDefinitions>
+        							<ColumnDefinition Width="*"/>
+        						</Grid.ColumnDefinitions>
+        						<Grid.RowDefinitions>
+        							<RowDefinition Height="Auto"/>
+        							<RowDefinition Height="Auto" MinHeight="{TemplateBinding MinHeight}"/>
+        							<RowDefinition Height="Auto"/>
+        						</Grid.RowDefinitions>
+        						<TickBar x:Name="TopTick" Height="4" Visibility="Collapsed" Fill="{TemplateBinding Foreground}" Placement="Top"/>
+        						<Microsoft_Windows_Themes:ClassicBorderDecorator Margin="0,0,0,1" x:Name="TrackBackground" Height="4" Grid.Row="1" >
+        							<Canvas >
+        								<Rectangle Fill="red" x:Name="PART_SelectionRange" Height="4.0" />
+        							</Canvas>
+        						</Microsoft_Windows_Themes:ClassicBorderDecorator>
+        						<Track x:Name="PART_Track" Grid.Row="1">
+        							<Track.DecreaseRepeatButton>
+        								<RepeatButton Style="{StaticResource SliderRepeatButtonStyle}" Command="{x:Static Slider.DecreaseLarge}"/>
+        							</Track.DecreaseRepeatButton>
+        							<Track.IncreaseRepeatButton>
+        								<RepeatButton Style="{StaticResource SliderRepeatButtonStyle}" Command="{x:Static Slider.IncreaseLarge}"/>
+        							</Track.IncreaseRepeatButton>
+        							<Track.Thumb>
+        								<Thumb x:Name="Thumb" Style="{StaticResource ThumbStyleGlass}" Height="17" Width="25" VerticalAlignment="Center"/>
+                                        <!--
+                                        <Thumb x:Name="Thumb" Style="{StaticResource HorizontalSliderThumbStyle}"/>  
+                                        -->
+        							</Track.Thumb>
+        						</Track>
+        						<TickBar x:Name="BottomTick" Height="4" Visibility="Collapsed" Grid.Row="2" Fill="{TemplateBinding Foreground}" Placement="Bottom"/>
+        					</Grid>
+        				</Border>
+        				<ControlTemplate.Triggers>
+        					<Trigger Property="TickPlacement" Value="TopLeft">
+        						<Setter Property="Visibility" TargetName="TopTick" Value="Visible"/>
+        						<Setter Property="Style" TargetName="Thumb" Value="{StaticResource HorizontalSliderUpThumbStyle}"/>
+        						<Setter Property="Margin" TargetName="TrackBackground" Value="0,3,0,0"/>
+        					</Trigger>
+        					<Trigger Property="TickPlacement" Value="BottomRight">
+        						<Setter Property="Visibility" TargetName="BottomTick" Value="Visible"/>
+        						<Setter Property="Style" TargetName="Thumb" Value="{StaticResource HorizontalSliderDownThumbStyle}"/>
+        						<Setter Property="Margin" TargetName="TrackBackground" Value="0,0,0,3"/>
+        					</Trigger>
+        					<Trigger Property="TickPlacement" Value="Both">
+        						<Setter Property="Visibility" TargetName="TopTick" Value="Visible"/>
+        						<Setter Property="Visibility" TargetName="BottomTick" Value="Visible"/>
+        					</Trigger>
+        					<Trigger Property="IsSelectionRangeEnabled" Value="true">
+        						<Setter Property="Visibility" TargetName="PART_SelectionRange" Value="Visible"/>
+        					</Trigger>
+        				</ControlTemplate.Triggers>
+        			</ControlTemplate>
+        		</Setter.Value>
+        	</Setter>
+        </Style>
+
+	</Window.Resources>
+    
+    
+    <!--
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    #######################################################################################
+    #######################################################################################    
+    #######################################################################################        
+    #######################################################################################            
+    #######################################################################################                
+    #######################################################################################    
+    #######################################################################################        
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -->
+    
+    <Grid>
+		<!--
+        <Image Source="Resources\main_background_overlay.gif" Width="800" Height="480" />
+		-->
+		<!--<Image Source="Resources/images/bg_plain.jpg" Width="800" Height="480" />-->
+		<Grid.Background>
+			<ImageBrush ImageSource="Resources/images/background_800x600.jpg"></ImageBrush>
+		</Grid.Background>
+		
+		
+		<Image Name="bg_image_stamp" Source="Resources/images/background_800x600_stamp.png" Width="800" Height="600" Focusable="False" IsHitTestVisible="False" />
+		
+
+        <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ShowGridLines="False">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Name="grid_status" Height="50"  />
+                <RowDefinition Name="grid_main" />
+                <RowDefinition Name="grid_control" Height="85" />
+
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="media_status" Grid.Row="0" Margin="0,10,0,0" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"/>
+					<ColumnDefinition />
+                    <ColumnDefinition Width="auto"/>                    
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" Orientation="Horizontal">
+					<Image Name="media_status_statusicon" Source="Resources/images/silk/control_play.png" Margin="4,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<!--<Label x:Name="media_status_filetype" Foreground="WhiteSmoke" FontSize="14" Content="TYPE" VerticalAlignment="Stretch" VerticalContentAlignment="Center" Padding="2,0,2,0"/>-->
+					<TextBlock x:Name="media_status_filetype" Foreground="WhiteSmoke" FontSize="14" VerticalAlignment="Stretch"  Padding="2,0,2,0" />
+					<Image Source="Resources/images/silk/music.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<TextBlock x:Name="media_status_songtime" Foreground="WhiteSmoke" FontSize="14" VerticalAlignment="Stretch" Padding="2,0,2,0" />
+                </StackPanel>
+
+				<StackPanel Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top" Orientation="Horizontal">
+					<Image Source="Resources/images/silk/phone.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<Image Source="Resources/images/silk/transmit_blue.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<Image Source="Resources/images/silk/weather_cloudy.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<Image Source="Resources/images/silk/weather_lightning.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<TextBlock Name="current_page_title" Foreground="WhiteSmoke" FontSize="14" Text="Home" VerticalAlignment="Stretch" Padding="2,0,2,0" />
+					<!--<Image Source="Resources/images/silk/weather_rain.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />-->
+					<Image Source="Resources/images/silk/weather_snow.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<Image Source="Resources/images/silk/weather_sun.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<Image Source="Resources/images/silk/cd.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+					<Image Source="Resources/images/silk/dvd.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+				</StackPanel>
+
+				<StackPanel Grid.Column="2" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Orientation="Horizontal">
+                    <Image Source="Resources/images/silk/clock.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" MouseDown="status_time_MouseDown" />
+					<TextBlock x:Name="status_time" FontSize="14" Foreground="WhiteSmoke" Text="TIME" Padding="2,0,2,0" MouseDown="status_time_MouseDown" />
+					<Image Source="Resources/images/silk/calendar_view_day.png" Margin="2,0,2,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" MouseDown="status_time_MouseDown" />
+                    <TextBlock x:Name="status_date" FontSize="14" Foreground="Silver" Text="DATE" Padding="2,0,7,0" MouseDown="status_time_MouseDown" />
+                </StackPanel>
+                
+                <StackPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                    <TextBlock x:Name="media_status_artists" Foreground="WhiteSmoke" FontSize="17" Padding="5,0,7,0"/>
+					<TextBlock x:Name="media_status_title" Foreground="WhiteSmoke" FontSize="17" FontWeight="Bold" Padding="5,0,7,0"/>
+                    <TextBlock x:Name="media_status_album" Foreground="Silver" FontSize="17" FontStyle="Italic" Padding="5,0,7,0"/>
+                </StackPanel>
+
+				<StackPanel x:Name="media_status_stars" Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Width="90" Height="14" Margin="0,2,0,0">
+					<StackPanel.RenderTransform>
+						<ScaleTransform ScaleX="1.5" ScaleY="1.5" />
+					</StackPanel.RenderTransform>
+					<ToggleButton Style="{DynamicResource StarToggleButton}" Click="setRating" />
+					<ToggleButton Style="{DynamicResource StarToggleButton}" Click="setRating" />
+					<ToggleButton Style="{DynamicResource StarToggleButton}" Click="setRating" />
+					<ToggleButton Style="{DynamicResource StarToggleButton}" Click="setRating" />
+					<ToggleButton Style="{DynamicResource StarToggleButton}" Click="setRating" />
+				</StackPanel>
+
+			</Grid>
+			
+            <Grid x:Name="media_control" Grid.Row="2" Margin="0,0,0,10">
+                <!-- <Grid x:Name="media_control" Grid.Row="2" Background="{DynamicResource glassBorderBG}" Opacity="1">-->
+
+                <Grid ShowGridLines="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="17" />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+
+					<Border Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Height="10" BorderBrush="#FFFFFFFF" BorderThickness="0.7" Margin="10,3,10,0" CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#C9000000" >
+						<!--
+						<Border Name="media_position_rect" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Height="10" Background="#FF1668D8" Width="0" Margin="10,3,10,2" HorizontalAlignment="Left" CornerRadius="5,0,0,5" BorderBrush="{DynamicResource glassBorderBG}" BorderThickness="1" VerticalAlignment="Top" />
+						-->
+						<Border Name="media_position_rect" Height="3" Background="#FF1D6DA9" Width="0" HorizontalAlignment="Left" CornerRadius="2" VerticalAlignment="Center" />
+					</Border>
+
+					<Slider Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Margin="10,0,10,0" x:Name="media_position" Height="17" VerticalAlignment="Top" ValueChanged="media_position_ValueChanged" KeyUp="media_position_KeyUp" GotMouseCapture="media_position_GotMouseCapture" LostMouseCapture="media_position_LostMouseCapture" Style="{DynamicResource media_position_slider}" FocusVisualStyle="{x:Null}" />
+
+					
+					<Grid Grid.Column="0" Grid.Row="1" Grid.RowSpan="2">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="Auto"  />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+						
+						<Slider x:Name="media_volume" Grid.Column="0" Grid.Row="0" Width="150" Margin="10,7,3,0" ValueChanged="media_volume_ValueChanged" Value="100" TickFrequency="10" SmallChange="1" Maximum="100" />
+						<StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10,0,0,0" >
+							<Image Name="media_volume_image" Source="Resources/images/silk/sound.png" Margin="0,0,13,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+							<ToggleButton x:Name="media_mute" Width="75" Margin="2" Content="Mute" Template="{DynamicResource GlassToggleButton}" Click="media_mute_Click" />
+							<Label Foreground="WhiteSmoke" x:Name="media_volume_label" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="0,5,0,0"  Width="45" Content="100%" />
+						</StackPanel>
+						
+						<StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
+							<RepeatButton x:Name="media_volume_up" Width="75" Height="25" Margin="2" Content="+" Click="media_volume_up_Click" Delay="100" Interval="225" IsEnabled="False" Template="{DynamicResource GlassRepeatButton}" />
+							<RepeatButton x:Name="media_volume_down" Width="75" Height="25" Margin="2" Content="-" Click="media_volume_down_Click" Delay="100" Interval="225" Template="{DynamicResource GlassRepeatButton}" />
+						</StackPanel>
+						
+
+					</Grid>
+					
+					<!--
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <RepeatButton x:Name="media_volume_down" Width="75" Margin="0,2,2,2" Content="-" Click="media_volume_down_Click" Delay="100" Interval="225" Template="{DynamicResource GlassRepeatButton}"/>
+                        <ToggleButton x:Name="media_mute" Width="75" Margin="2" Content="Mute" Template="{DynamicResource GlassToggleButton}" Click="media_mute_Click" />
+                        <RepeatButton x:Name="media_volume_up" Width="75" Margin="2" Content="+" Click="media_volume_up_Click" Delay="100" Interval="225" IsEnabled="False" Template="{DynamicResource GlassRepeatButton}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+						<Image Name="media_volume_image" Source="Resources/images/silk/sound.png" Margin="0,0,5,0" Width="16" Height="16" OpacityMask="{DynamicResource iconShine}" />
+                        <Slider Width="150" x:Name="media_volume" ValueChanged="media_volume_ValueChanged" Value="100" TickFrequency="10" SmallChange="1" Maximum="100" />
+                        <Label Foreground="WhiteSmoke" x:Name="media_volume_label" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Width="45" Content="100%"/>
+                    </StackPanel>
+					-->
+
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Button x:Name="media_previous" Margin="5" Click="media_previous_Click" Template="{DynamicResource GlassButton}" Content=" |&lt;&lt; " Width="60" Height="35" />
+
+                        <ToggleButton x:Name="media_play" Margin="5,2" Template="{DynamicResource glassToggle}" Click="media_play_Click" />
+                        <Button x:Name="media_next" Margin="5"  Click="media_next_Click" Template="{DynamicResource GlassButton}" Content=" &gt;&gt;| " Width="60" Height="35" />
+                        
+                    </StackPanel>
+					
+					<StackPanel Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+						<ToggleButton x:Name="button_media_repeat" Width="70" Height="35"  Margin="5" Content="Repeat" Template="{DynamicResource GlassToggleButton}" Click="button_media_repeat_Click" />
+						<ToggleButton x:Name="button_media_shuffle" Width="70" Height="35" Margin="5" Content="Shuffle" Template="{DynamicResource GlassToggleButton}" Click="button_media_shuffle_Click" />
+						<Button x:Name="homeExit" Width="70" Margin="5" Height="35" Content="Exit" FontWeight="bold"  Template="{DynamicResource GlassButton}" Click="homeExit_Click" />
+					</StackPanel>
+
+				</Grid>
+            </Grid>
+            <!--Margin="210,18,193,104"-->
+            <TabControl Grid.Row="1" x:Name="tabControl1" TabStripPlacement="Top" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Style="{StaticResource TabControlNoTabStrip}" SelectedIndex="0" FocusVisualStyle="{x:Null}">
+                <TabItem Header="HOME" Style="{DynamicResource glassTabItem}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+
+                        </Grid.RowDefinitions>
+						
+						<!--
+						<Image Grid.Column="0" Grid.Row="1" Source="Resources/images/silk/arrow_left.png" Height="32" Width="32" Margin="0,20,0,0" OpacityMask="{DynamicResource iconShine}"></Image>
+						<Image Grid.Column="3" Grid.Row="1" Source="Resources/images/silk/arrow_right.png" Height="32" Width="32" Margin="0,20,0,0"></Image>
+						-->
+						<!--
+						<StackPanel Grid.Column="0" Grid.Row="1">
+							<TextBox x:Name="TESTBOX">0</TextBox>
+							<Button Click="Button_Click_1" Content="TEST" />
+						</StackPanel>
+-->
+
+						<Button x:Name="hp_audio" Content="audio" Grid.Column="0" Grid.Row="0" Template="{DynamicResource GlassButton}" Height="60" Width="150"  FontSize="18" Click="hp_audio_Click" />
+						<Button x:Name="hp_manage_media" Content="manage media" Grid.Column="1" Grid.Row="0" Template="{DynamicResource GlassButton}" Height="60" Width="150" FontSize="18" Click="hp_manage_media_Click" />
+						<Button x:Name="hp_video" Content="video" Grid.Column="2" Grid.Row="0" Template="{DynamicResource GlassButton}" Height="60" Width="150" FontSize="18" Click="hp_video_Click" />
+
+						<Button x:Name="hp_obd" Content="diagnostics" Grid.Column="0" Grid.Row="2" Template="{DynamicResource GlassButton}" Height="60" Width="150" FontSize="18" Click="hp_obd_Click" />
+                        <Button x:Name="hp_control" Content="control" Grid.Column="1" Grid.Row="2" Template="{DynamicResource GlassButton}" Height="60" Width="150" FontSize="18" Click="hp_control_Click"  />
+						<Button x:Name="hp_settings" Content="settings" Grid.Column="2" Grid.Row="2" Template="{DynamicResource GlassButton}" Height="60" Width="150" FontSize="18" Click="hp_settings_Click" />
+                    </Grid>
+                </TabItem>
+                
+                
+                
+                <TabItem Header="AUDIO" Style="{DynamicResource glassTabItem}">
+                    <!--<TabControl x:Name="audioTabs" TabStripPlacement="Bottom" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Style="{DynamicResource glassTabControl}">-->
+					<!--
+					<TabControl x:Name="audioTabs" TabStripPlacement="Bottom" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="0" Style="{DynamicResource glassTabControl}">
+                        <TabItem Header="Now Playing" Style="{DynamicResource glassTabItem}">
+					-->
+					<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+
+
+
+
+						<!--Cover Image and Reflection START -->
+						<StackPanel Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Margin="0,75,0,0">
+							<Border BorderBrush="Black" BorderThickness="1" CornerRadius="0,15,15,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="196" Width="200" x:Name="image1_border" Visibility="Hidden">
+								<Border.Background>
+									<ImageBrush Stretch="UniformToFill" x:Name="image1">
+									</ImageBrush>
+								</Border.Background>
+								<Border.BitmapEffect>
+									<BitmapEffectGroup>
+										<DropShadowBitmapEffect Color="Black" Direction="20" ShadowDepth="25" Softness="1" Opacity="0.5" />
+									</BitmapEffectGroup>
+								</Border.BitmapEffect>
+								<Border.RenderTransform>
+									<SkewTransform CenterX="0" CenterY="0" AngleX="0" AngleY="5" />
+								</Border.RenderTransform>
+							</Border>
+							<Border Height="{Binding ElementName=image1_border, Path=Height}" Width="{Binding ElementName=image1_border, Path=Width}" BorderBrush="#aa000000" BorderThickness="{Binding ElementName=image1_border, Path=BorderThickness}" CornerRadius="{Binding ElementName=image1_border, Path=CornerRadius}" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding ElementName=image1_border, Path=Visibility}">
+								<Border.Background>
+									<!--<VisualBrush Visual="{Binding ElementName=image1, Path=ImageSource}">
+                                                <VisualBrush.Transform>
+                                                    <ScaleTransform ScaleX="1" ScaleY="-1" CenterX="200" CenterY="98">
+                                                    </ScaleTransform>
+                                                </VisualBrush.Transform>
+                                            </VisualBrush>-->
+									<ImageBrush Stretch="UniformToFill" x:Name="image2">
+										<ImageBrush.Transform>
+											<ScaleTransform ScaleX="1" ScaleY="-1" CenterX="200" CenterY="98">
+											</ScaleTransform>
+										</ImageBrush.Transform>
+									</ImageBrush>
+
+								</Border.Background>
+
+								<Border.OpacityMask>
+									<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+										<GradientStop Offset="0" Color="Black"></GradientStop>
+										<GradientStop Offset="0.6" Color="Transparent"></GradientStop>
+									</LinearGradientBrush>
+								</Border.OpacityMask>
+
+								<Border.RenderTransform>
+									<SkewTransform CenterX="30" CenterY="2" AngleX="-30" AngleY="10" />
+								</Border.RenderTransform>
+
+							</Border>
+						</StackPanel>
+
+						<!-- Visualization -->
+						<!--<Rectangle Name="rect1" Fill="Fuchsia" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" ></Rectangle>-->
+
+						<TabControl x:Name="now_playingTabs" TabStripPlacement="Bottom" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Style="{DynamicResource glassTabControl}" SelectionChanged="now_playingTabs_SelectionChanged">
+							<TabItem Header="Visualization" Style="{DynamicResource glassTabItem}" Name="visualization_tab">
+
+
+								<!--<Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>-->
+
+								<!--<Canvas x:Name="media_visualization" Background="Black"/>-->
+								<!--
+                                        <Canvas x:Name="media_visualization_grids" Background="#aa000000" Loaded="draw_grids"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsHitTestVisible="False"  >
+                                        -->
+
+
+								<Border Name="media_visualization_grids" IsHitTestVisible="False" Width="400" Height="275">
+									<Border x:Name="media_visualization" Loaded="media_visualization_Loaded" IsHitTestVisible="False" Height="{Binding ElementName=media_visualization_grids, Path=Height}" Width="{Binding ElementName=media_visualization_grids, Path=Width}" />
+
+									<!--
+                                            <Border.RenderTransform>
+                                                <SkewTransform CenterX="0" CenterY="0" AngleX="0" AngleY="-5" />
+                                            </Border.RenderTransform>
+                                            -->
+								</Border>
+
+								<!--
+                                        </Canvas>
+-->
+
+
+
+								<!--</Grid>-->
+
+							</TabItem>
+
+							<TabItem Header="Visualization 2" Style="{DynamicResource glassTabItem}">
+								<!--
+								<customControls:visualizationControl Width="300" Height="300">
+									
+								</customControls:visualizationControl>
+								
+								-->
+								<Border x:Name="media_visualization_border" BorderBrush="Black" BorderThickness="0.7" Width="356" Height="256" Padding="2">
+									<Border.RenderTransform>
+										<SkewTransform CenterX="0" CenterY="0" AngleX="0" AngleY="5" />
+									</Border.RenderTransform>
+
+									<Grid x:Name="media_visualization_2" Margin="0,0,4,0" Width="350" Height="250" HorizontalAlignment="Right" VerticalAlignment="Center" />
+								</Border>
+
+
+
+							</TabItem>
+
+							<TabItem Header="Media Details" Style="{DynamicResource glassTabItem}">
+								<Border x:Name="mediainfo_container" BorderBrush="Black" BorderThickness="1" Width="350" VerticalAlignment="Center" CornerRadius="7" Background="#550A0A0A">
+									<Grid>
+										<Rectangle x:Name="mediainfo_media_progress" Fill="#990A0A0A" Width="0" HorizontalAlignment="Left" />
+										<Grid Margin="3">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition />
+												<ColumnDefinition />
+											</Grid.ColumnDefinitions>
+											<Grid.RowDefinitions>
+												<RowDefinition Height="Auto" />
+												<RowDefinition Height="Auto" />
+												<RowDefinition Height="Auto" />
+												<RowDefinition Height="Auto" />
+												<RowDefinition />
+											</Grid.RowDefinitions>
+
+											<TextBlock x:Name="mediainfo_title" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" FontSize="18" TextWrapping="Wrap" Foreground="{DynamicResource whitey}" />
+											<TextBlock x:Name="mediainfo_filepath" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Foreground="{DynamicResource whitey}" />
+											<Rectangle Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Width="325" Height="1" Fill="#D2D219" Opacity="0.7" />
+
+
+											<StackPanel x:Name="mediainfo_stars" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Margin="-55,-7,3,13" Height="20" >
+												<StackPanel.RenderTransform>
+													<ScaleTransform ScaleX="2" ScaleY="2" />
+												</StackPanel.RenderTransform>
+												<ToggleButton Style="{DynamicResource StarToggleButton}" IsHitTestVisible="False"  />
+												<ToggleButton Style="{DynamicResource StarToggleButton}" IsHitTestVisible="False" />
+												<ToggleButton Style="{DynamicResource StarToggleButton}" IsHitTestVisible="False" />
+												<ToggleButton Style="{DynamicResource StarToggleButton}" IsHitTestVisible="False" />
+												<ToggleButton Style="{DynamicResource StarToggleButton}" IsHitTestVisible="False" />
+											</StackPanel>
+
+											<StackPanel Grid.Column="0" Grid.Row="4" Orientation="Vertical" Margin="0,0,5,0">
+												<TextBlock Style="{DynamicResource MediaInfoLabel}">Artist</TextBlock>
+												<TextBlock x:Name="mediainfo_artist" Style="{DynamicResource MediaInfoValue}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabel}">Album</TextBlock>
+												<TextBlock x:Name="mediainfo_album" Style="{DynamicResource MediaInfoValue}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabel}" TextWrapping="Wrap">Title</TextBlock>
+												<TextBlock x:Name="mediainfo_trackname" Style="{DynamicResource MediaInfoValue}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabel}">Track number</TextBlock>
+												<TextBlock x:Name="mediainfo_tracknumber" Style="{DynamicResource MediaInfoValue}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabel}">Genres</TextBlock>
+												<TextBlock x:Name="mediainfo_genre" Style="{DynamicResource MediaInfoValue}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabel}">Year</TextBlock>
+												<TextBlock x:Name="mediainfo_year" Style="{DynamicResource MediaInfoValue}" />
+											</StackPanel>
+
+											<StackPanel Grid.Column="1" Grid.Row="4" Orientation="Vertical" Margin="5,0,0,0">
+												<TextBlock Style="{DynamicResource MediaInfoLabelRightCol}">Bitrate</TextBlock>
+												<TextBlock x:Name="mediainfo_bitrate" Style="{DynamicResource MediaInfoValueRightCol}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabelRightCol}">Channels</TextBlock>
+												<TextBlock x:Name="mediainfo_channels" Style="{DynamicResource MediaInfoValueRightCol}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabelRightCol}">Filesize</TextBlock>
+												<TextBlock x:Name="mediainfo_filesize" Style="{DynamicResource MediaInfoValueRightCol}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabelRightCol}">Playlist number</TextBlock>
+												<TextBlock x:Name="mediainfo_playlistnumber" Style="{DynamicResource MediaInfoValueRightCol}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabelRightCol}">Playcount</TextBlock>
+												<TextBlock x:Name="mediainfo_playcount" Style="{DynamicResource MediaInfoValueRightCol}" />
+
+												<TextBlock Style="{DynamicResource MediaInfoLabelRightCol}">Last played</TextBlock>
+												<TextBlock x:Name="mediainfo_lastplayed" Style="{DynamicResource MediaInfoValueRightCol}" />
+											</StackPanel>
+										</Grid>
+									</Grid>
+
+								</Border>
+							</TabItem>
+
+							<TabItem Header="Now Playing" Style="{DynamicResource glassTabItem}">
+								<uc:CustJournal x:Name="custJournal" Width="Auto" VerticalAlignment="Stretch" Height="Auto" />
+							</TabItem>
+
+						</TabControl>
+					</Grid>
+				</TabItem>
+
+
+
+				<TabItem Header="Management" Style="{DynamicResource glassTabItem}">
+					<Border>
+						<TabControl Loaded="TabControl_Loaded" Style="{DynamicResource glassTabControl}" TabStripPlacement="Bottom">
+							<TabItem Header="Media Folders" Style="{DynamicResource glassTabItem}">
+								<Grid Margin="3,0">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto" />
+										<ColumnDefinition />
+									</Grid.ColumnDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition Height="250" />
+										<RowDefinition />
+									</Grid.RowDefinitions>
+									
+									
+									<Border Grid.Column="0" Grid.Row="0" Width="180" Height="200" CornerRadius="0,9,9,9" BorderBrush="{StaticResource whitey}" BorderThickness="1" VerticalAlignment="Center" Margin="5" >
+										<Border.Background>
+											<ImageBrush x:Name="mediafolder_preview" />
+										</Border.Background>
+									</Border>
+									
+									
+									<customControls:mediaFolderList x:Name="mediafolderlist" Grid.Column="1" Grid.Row="0" Height="250"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+									
+									<StackPanel Grid.Column="0" Grid.Row="1" Margin="5,0,5,0">
+										<TextBlock FontSize="19" Foreground="{StaticResource whitey}" Text="Options" />
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition />
+												<ColumnDefinition />
+											</Grid.ColumnDefinitions>
+											<Grid.RowDefinitions>
+												<RowDefinition />
+											</Grid.RowDefinitions>
+
+											<Button x:Name="mediafolder_add" Grid.Column="0" Template="{DynamicResource GlassButton}" Margin="0,2,4,6" IsEnabled="False" Click="mediafolder_add_Click" >
+												<TextBlock Foreground="DarkGreen" FontSize="30" FontWeight="Bold" Text="+" />
+											</Button>
+											<Button x:Name="mediafolder_remove" Grid.Column="1" Template="{DynamicResource GlassButton}" Margin="4,2,0,6" IsEnabled="False" Click="mediafolder_remove_Click" >
+												<TextBlock Foreground="DarkRed" FontSize="30" FontWeight="Bold" Text="-" />
+											</Button>
+										</Grid>
+										<Button x:Name="mediafolder_rescan_selected" Template="{DynamicResource GlassButton}" Height="30"  Margin="0,2" Content="Rescan selected folder" IsEnabled="False" Click="mediafolder_rescan_selected_Click" />
+										<Button x:Name="mediafolder_rescan_all" Template="{DynamicResource GlassButton}" Height="30" Margin="0,4" Content="Rescan all folders" Click="mediafolder_rescan_all_Click" />
+										<Button Template="{DynamicResource GlassButton}" Height="30" Margin="0,8,0,0" Content="Explore folder" IsEnabled="False" />
+
+									</StackPanel>
+									
+									<StackPanel Grid.Column="1" Grid.Row="1">
+										<TextBlock FontSize="19" Foreground="{StaticResource whitey}">Media Folder Path</TextBlock>
+										
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="Auto" />
+												<ColumnDefinition />
+											</Grid.ColumnDefinitions>
+											<Grid.RowDefinitions>
+												<RowDefinition />
+											</Grid.RowDefinitions>
+
+											<Button x:Name="mediafolder_browse" Grid.Column="0" Content="Browse..." Margin="3,0" Width="75" Height="35"   Template="{DynamicResource GlassButton}" Click="mediafolder_browse_Click" />
+											<TextBox x:Name="mediafolder_folderpath" Grid.Column="1" Margin="3,0" VerticalAlignment="Center" />
+										</Grid>
+										
+										<!-- have to do it like this because the foreground colour affects the checkmark... which then makes it invisible.
+											Same thing applies to the radio buttons -->
+										<CheckBox x:Name="mediafolder_search_subfolders" Foreground="Black" Margin="0,4">
+											<TextBlock FontSize="18" Foreground="{StaticResource whitey}" Margin="5,4,0,0" Text="Include subfolders in the search." />
+										</CheckBox>
+										
+										<RadioButton x:Name="mediafolder_type_audio" FontSize="13" Foreground="Black" Margin="0,1">
+											<TextBlock FontSize="18" Foreground="{StaticResource whitey}" Text="Audio" Margin="5,4,0,0" />
+										</RadioButton>
+										<RadioButton x:Name="mediafolder_type_video" FontSize="13" Foreground="Black" Margin="0,1">
+											<TextBlock FontSize="18" Foreground="{StaticResource whitey}" Text="Video" Margin="5,4,0,0" />
+										</RadioButton>
+										<RadioButton x:Name="mediafolder_type_image" FontSize="13" Foreground="Black" Margin="0,1" Visibility="Collapsed" >
+											<TextBlock FontSize="16" Foreground="{StaticResource whitey}" Text="Image" Margin="5,0,0,0" />
+										</RadioButton>
+										
+										<ProgressBar x:Name="mediafolder_progress" Height="15" Margin="5"></ProgressBar>
+										
+									</StackPanel>
+
+								</Grid>
+							</TabItem>
+
+
+							<TabItem Header="Explore" Style="{DynamicResource glassTabItem}">
+								<Grid Margin="3,0">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition />
+										<ColumnDefinition />
+									</Grid.ColumnDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition />
+									</Grid.RowDefinitions>
+								
+									<TextBlock Grid.Column="0" FontSize="19" Foreground="{StaticResource whitey}" Text="Media Folder" />
+									<TextBlock Grid.Column="1" FontSize="19" Foreground="{StaticResource whitey}" Text="Media Details" />
+									
+								</Grid>
+							</TabItem>
+							
+							
+
+							<TabItem Header="Management" Style="{DynamicResource glassTabItem}">
+								<Grid Margin="3,0,3,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="120" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+
+									<Grid Grid.Row="0">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition />
+											<ColumnDefinition />											
+										</Grid.ColumnDefinitions>
+										<Grid.RowDefinitions>
+											<RowDefinition />
+										</Grid.RowDefinitions>
+										
+										
+										<StackPanel Grid.Column="0" Grid.Row="0">
+											<Label Name="management_label" FontSize="16" Width="155" Foreground="WhiteSmoke" Content="Options" />
+
+											<TreeView Name="management_treeview" SelectedItemChanged="management_treeview_SelectedItemChanged" Width="150" Padding="0" BorderThickness="0" FontSize="13">
+
+												<TreeViewItem Header="Now Playing" />
+
+												<TreeViewItem Header="Media">
+													<TreeViewItem Header="Audio" />
+													<TreeViewItem Header="Videos" />
+													<TreeViewItem Header="Images" />
+												</TreeViewItem>
+
+												<TreeViewItem Header="Playlists">
+													<TreeViewItem Header="New Playlist" MouseDoubleClick="createNewPlaylist" />
+
+												</TreeViewItem>
+
+												<TreeViewItem Header="Removable Storage" />
+
+											</TreeView>
+										</StackPanel>
+
+										<StackPanel Grid.Column="1">
+											<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+												<Button Width="90" Height="35" Margin="5" Template="{DynamicResource GlassButton}">Play Now</Button>
+												
+												<Button x:Name="management_enqueue" Width="90" Height="35" Margin="5" Template="{DynamicResource GlassButton}" Click="management_enqueue_Click">Enqueue</Button>
+												<Button x:Name="management_enqueue_all" Width="90" Height="35" Margin="5" Content="Enqueue All" Template="{DynamicResource GlassButton}" Click="management_enqueue_all_Click" />
+												
+											</StackPanel>
+
+											<StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+												<Button x:Name="management_delete" Width="90" Height="35" Margin="5" Template="{DynamicResource GlassButton}" Click="management_delete_Click">Delete Media</Button>
+												<Button Width="90" Height="35" Margin="5" Template="{DynamicResource GlassButton}">More Details</Button>
+											</StackPanel>
+										</StackPanel>
+									</Grid>
+
+									<ListView Name="management_listview" Grid.Row="1" VirtualizingStackPanel.IsVirtualizing="True" BorderThickness="0" FontSize="14">
+                                        <ListView.View>
+                                            <GridView >
+                                                <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=[0]}" />
+                                                <GridViewColumn Header="Rating" DisplayMemberBinding="{Binding Path=[1]}" />
+                                                <GridViewColumn Header="Artist" DisplayMemberBinding="{Binding Path=[2]}" />
+                                                <GridViewColumn Header="Album" DisplayMemberBinding="{Binding Path=[3]}" />
+                                                <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=[4]}" />
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                </Grid>
+                            </TabItem>
+							
+							<TabItem Header="ManagementV2" Style="{DynamicResource glassTabItem}">
+								<Grid Margin="5,0">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition />
+										<ColumnDefinition Width="Auto"  />
+										<ColumnDefinition />
+									</Grid.ColumnDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition Height="Auto" />
+										<RowDefinition Height="Auto" />
+										<RowDefinition />
+									</Grid.RowDefinitions>
+									
+									<ComboBox x:Name="management_medialist" Grid.Column="0" Grid.Row="0" SelectionChanged="management_medialist_SelectionChanged">
+										<ComboBoxItem>Audio</ComboBoxItem>
+										<ComboBoxItem>Video</ComboBoxItem>
+										<ComboBoxItem>Images</ComboBoxItem>
+									</ComboBox>
+
+									<ComboBox x:Name="management_playlists" Grid.Column="2" Grid.Row="0" SelectionChanged="management_playlists_SelectionChanged">
+										<ComboBoxItem>Now Playing</ComboBoxItem>
+										<ComboBoxItem>Playlists</ComboBoxItem>
+									</ComboBox>
+
+
+									<Expander x:Name="expander_media_options" Header="Media Options" Grid.Column="0" Grid.Row="1">
+										<StackPanel>
+											<Button>Rename</Button>
+											<Button>Delete</Button>
+											<Button>Play Now</Button>
+											<Button>Enqueue</Button>
+
+
+										</StackPanel>
+									</Expander>
+
+									<Expander x:Name="expander_playlist_options" Header="Playlist Options" Expanded="expander_playlist_options_Expanded" Grid.Column="2" Grid.Row="1">
+										<StackPanel>
+											<Button>Rename</Button>
+											<Button>Delete</Button>
+											
+											<Button>Enque Playlist</Button>
+											<Button>Make playlist active</Button>
+											
+											
+										</StackPanel>
+									</Expander>
+										
+
+									<!--
+									<ListView Name="management_media_listview" Grid.Column="0" Grid.Row="2" VirtualizingStackPanel.IsVirtualizing="True" BorderThickness="0">
+										<ListView.View>
+											<GridView>
+												<GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=[0]}" Width="Auto" />
+												<GridViewColumn Header="Rating" DisplayMemberBinding="{Binding Path=[1]}" />
+												<GridViewColumn Header="Artist" DisplayMemberBinding="{Binding Path=[2]}" />
+												<GridViewColumn Header="Album" DisplayMemberBinding="{Binding Path=[3]}" />
+												<GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=[4]}" />
+											</GridView>
+										</ListView.View>
+									</ListView>
+									-->
+									
+									
+									<local:playlistControl x:Name="management_media_customview" Grid.Column="0" Grid.Row="2" Width="Auto" Height="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+									
+
+									<StackPanel Grid.Column="1" Grid.Row="2" VerticalAlignment="Center" Margin="0">
+										<Button Template="{DynamicResource GlassButton}" Margin="5" Height="30" Width="75">ADD</Button>
+										<Button Template="{DynamicResource GlassButton}" Margin="5" Height="30" Width="75">REMOVE</Button>
+										
+										<Rectangle Width="60" Height="3" Fill="DodgerBlue" Stroke="DarkGray" StrokeThickness="0.5" />
+										
+										<Button Template="{DynamicResource GlassButton}" Margin="5" Height="30" Width="75">ADD all</Button>
+										
+										<Button Template="{DynamicResource GlassButton}" Margin="5" Height="30" Width="75">REMOVE all</Button>
+									</StackPanel>
+									
+									<local:playlistControl x:Name="management_playlist_customview" Grid.Column="2" Grid.Row="2" Width="Auto" Height="Auto" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+									
+									
+
+								</Grid>
+							</TabItem>
+							
+							<TabItem Header="Browse Videos" Style="{DynamicResource glassTabItem}">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="auto" />
+										<ColumnDefinition />										
+									</Grid.ColumnDefinitions>
+									<Grid.RowDefinitions>
+										<RowDefinition Height="auto" />
+										<RowDefinition />
+									</Grid.RowDefinitions>
+									
+									<TextBlock Grid.Column="0" Grid.Row="0" FontSize="19" Foreground="{StaticResource whitey}" Text="Page X of Y (XX videos total)" />
+									
+									<StackPanel Grid.Column="1" Orientation="Horizontal">
+										<Button Margin="5" Width="50" Height="25" Template="{DynamicResource GlassButton}" Content="&lt;&lt;" />
+										<Button x:Name="videos_thumbs_refresh" Margin="5" Width="50" Height="25" Template="{DynamicResource GlassButton}" Content="&gt;&gt;" Click="videos_thumbs_refresh_Click" />										
+									</StackPanel>
+									
+									<Grid Grid.Row="1" Grid.ColumnSpan="2">
+										<Grid.ColumnDefinitions>
+											<ColumnDefinition />
+											<ColumnDefinition />
+											<ColumnDefinition />
+										</Grid.ColumnDefinitions>
+										<Grid.RowDefinitions>
+											<RowDefinition />
+											<RowDefinition />
+											<RowDefinition />
+										</Grid.RowDefinitions>
+
+										<StackPanel Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">
+											<Rectangle Fill="Black" Width="220" Height="100" />
+											<TextBlock HorizontalAlignment="Center">TEST</TextBlock>
+
+										</StackPanel>
+
+									</Grid>
+								</Grid>
+
+							</TabItem>
+
+                        </TabControl>
+                    </Border>
+                </TabItem>
+
+
+                <TabItem Name="tabitem_video" Header="VIDEO" Style="{DynamicResource glassTabItem}">
+					<Grid Loaded="Grid_Loaded" Unloaded="Grid_Unloaded" Initialized="Grid_Initialized">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+						</Grid.RowDefinitions>
+						
+						<Border BorderBrush="{StaticResource whitey}" Width="375" Height="250" Background="Black">
+							<WindowsFormsHost Grid.Column="0" Grid.Row="0" Width="350" Height="200" Margin="0" Padding="0" >
+								<wf:Panel x:Name="vlcPanel" BorderStyle="None" Width="350" Height="200" />
+							</WindowsFormsHost>
+						</Border>
+
+						<uc:CustJournal x:Name="medialist_video" Grid.Column="1" Width="Auto" VerticalAlignment="Stretch" Height="Auto" />
+						
+					</Grid>
+                </TabItem>
+
+
+				<TabItem Header="OBD" Style="{DynamicResource glassTabItem}">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="auto" />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+						
+						
+						<StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+							<TextBlock FontSize="19" Foreground="{StaticResource whitey}" Margin="5,0" Text="COM Port:" />
+							<ComboBox x:Name="obd_com_list" />
+							<Button x:Name="obd_com_rescan" Content="Refresh" Margin="5" Height="25" Width="75" Template="{DynamicResource GlassButton}" Click="obd_com_rescan_Click"  />
+						</StackPanel>
+
+
+						<StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+							<TextBlock FontSize="19" Foreground="{StaticResource whitey}" Margin="5,0" Text="Status:" />
+							<TextBlock FontSize="19" Foreground="Yellow" Margin="5,0" Text="Connecting..." />
+							<Button x:Name="obd_com_connect" Content="Connect" Margin="5" Height="25" Width="80" IsEnabled="False" Template="{DynamicResource GlassButton}" Click="obd_com_connect_Click" />
+						</StackPanel>
+						
+						<StackPanel Grid.Column="0" Grid.Row="1">
+							<TextBox x:Name="obd_message" Height="20" Text="010C" Margin="4" Foreground="{StaticResource whitey}" Background="#7F000000" BorderBrush="{StaticResource whitey}" BorderThickness="1" />
+							<ToggleButton x:Name="obd_toggle" Width="320" Height="50" Margin="3" Content="Use the text above for communication" IsChecked="False" Checked="obd_toggle_Checked" Template="{DynamicResource GlassToggleButton}" />
+							
+							<!--<ToggleButton x:Name="obd_toggle_obd" Content="OBD Mode" IsChecked="False" Checked="obd_toggle_obd_Checked" Template="{DynamicResource GlassToggleButton}" />-->
+							<Button x:Name="obd_log_clear" Width="120" Height="50" Margin="3"  Content="Clear Log" Template="{DynamicResource GlassButton}" Click="obd_log_clear_Click"/>
+							<TextBlock x:Name="obd_rpm" FontSize="19" Foreground="{StaticResource whitey}" Height="50" Margin="10,150,10,10" HorizontalAlignment="Center" Text="RPM"  />
+							
+						</StackPanel>
+						
+						
+						
+						<TextBox x:Name="obd_log" Grid.Column="1" Grid.Row="1" Foreground="{StaticResource whitey}" Background="#7F000000" BorderBrush="{StaticResource whitey}" BorderThickness="1" Margin="4" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" />
+
+
+
+					</Grid>
+				</TabItem>
+
+
+				<TabItem Header="CONTROL" Style="{DynamicResource glassTabItem}">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="auto" />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+
+
+						<StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal">
+							<TextBlock FontSize="19" Foreground="{StaticResource whitey}" Margin="5,0" Text="COM Port:" />
+							<ComboBox x:Name="control_com_list" />
+							<Button x:Name="control_com_rescan" Content="Refresh" Margin="5" Height="25" Width="75" Template="{DynamicResource GlassButton}" Click="control_com_rescan_Click" />
+						</StackPanel>
+
+
+						<StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal">
+							<TextBlock FontSize="19" Foreground="{StaticResource whitey}" Margin="5,0" Text="Status:" />
+							<TextBlock x:Name="control_status_message" FontSize="19" Foreground="Yellow" Margin="5,0" Text="Disconnected" />
+							<Button x:Name="control_com_connect" Content="Connect" Margin="5" Height="25" Width="80" IsEnabled="False" Template="{DynamicResource GlassButton}" Click="control_com_connect_Click" />
+						</StackPanel>
+
+						<StackPanel Grid.Column="0" Grid.Row="1" VerticalAlignment="Center">
+							<ToggleButton x:Name="control_toggle" Width="120" Height="50"  Content="Output Toggle" IsChecked="False" Template="{DynamicResource GlassToggleButton}" Click="control_toggle_Click" />
+
+						</StackPanel>
+
+
+
+						<TextBox x:Name="control_log" Grid.Column="1" Grid.Row="1" Foreground="{StaticResource whitey}"  Background="#7F000000" BorderBrush="{StaticResource whitey}" BorderThickness="1" Margin="4" TextWrapping="Wrap" HorizontalScrollBarVisibility="Auto" />
+
+					</Grid>
+				</TabItem>
+
+
+				<TabItem Header="GPS" Style="{DynamicResource glassTabItem}" />
+                <TabItem Header="SETTINGS" Style="{DynamicResource glassTabItem}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+							<RowDefinition />
+                        </Grid.RowDefinitions>
+						
+						<StackPanel>
+							<Label FontSize="14" Foreground="WhiteSmoke" FontWeight="bold" Padding="2,0,7,0">General</Label>
+							<Label FontSize="11" Foreground="Silver" Padding="2,0,7,0">This page allows you to manage various settings related to the IVCS </Label>
+							
+						</StackPanel>
+
+						<TabControl Style="{DynamicResource glassTabControl}" TabStripPlacement="Bottom" Grid.Column="0" Grid.Row="1" >
+							<TabItem Header="General" Style="{DynamicResource glassTabItem}">
+								<StackPanel>
+									<TextBlock xml:space="preserve" TextWrapping="Wrap">
+									date &amp; time format
+									song display format
+									"modules"/plugins that are loaded (a whole other tab for management would be cool)
+
+									</TextBlock>
+									
+									<Button x:Name="show_taskbar" Content="Show Windows taskbar" Width="160" Height="35"  Template="{DynamicResource GlassButton}" Click="show_taskbar_Click" />
+									<Button x:Name="button_compact_db" Content="Compact Database" Width="160" Height="35" Template="{DynamicResource GlassButton}" Click="button_compact_db_Click" />
+
+
+								</StackPanel>
+							</TabItem>
+							<TabItem Header="Media" Style="{DynamicResource glassTabItem}">
+
+							</TabItem>
+							<TabItem Header="Audio" Style="{DynamicResource glassTabItem}">
+
+							</TabItem>
+
+						</TabControl>
+
+					</Grid>
+                </TabItem>
+				
+				<TabItem Header="Date &amp; Time" Style="{DynamicResource glassTabItem}">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition  />
+							<RowDefinition Height="auto" />
+						</Grid.RowDefinitions>
+						<Grid.Resources>
+							<ObjectDataProvider x:Key="dateTime" ObjectType="{x:Type System:DateTime}" />
+						</Grid.Resources>
+						
+						<Control Grid.Column="0" Grid.Row="0" Width="120" Height="108" Template="{StaticResource clockTemplate}" DataContext="{Binding Path=Now, Source={StaticResource dateTime}}" />
+
+
+						<Label Grid.Column="0" Grid.Row="1">TIME</Label>
+						
+						<Grid Grid.Column="1" Grid.Row="1">
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition />
+								<ColumnDefinition />
+							</Grid.ColumnDefinitions>
+							<Grid.RowDefinitions>
+								<RowDefinition />
+							</Grid.RowDefinitions>
+							
+							<Label Grid.Column="0">DATE</Label>
+							<Button Grid.Column="1" HorizontalAlignment="Right">Settings</Button>
+						</Grid>
+
+
+					</Grid>
+				</TabItem>
+				
+				<TabItem Header="Button Test" Style="{DynamicResource glassTabItem}">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+						
+						<StackPanel Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Center">
+							<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+							</StackPanel>
+							<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+							</StackPanel>
+							<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+								<Button Template="{DynamicResource GlassButton}" Content="AUDIO" Width="90" Height="45" Margin="10" />
+							</StackPanel>
+						</StackPanel>
+
+
+
+						<StackPanel Grid.Column="0" Grid.Row="1">
+							<Border BorderThickness="0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="55" Width="200" x:Name="image1_border123">
+								<TextBlock x:Name="testing_123_block" FontSize="55">asdf</TextBlock>
+								<!--
+								<Border.BitmapEffect>
+									<BitmapEffectGroup>
+										<DropShadowBitmapEffect Color="Black" Direction="20" ShadowDepth="25" Softness="1" Opacity="0.5" />
+									</BitmapEffectGroup>
+								</Border.BitmapEffect>
+								
+								<Border.RenderTransform>
+									<SkewTransform CenterX="0" CenterY="0" AngleX="0" AngleY="5" />
+								</Border.RenderTransform>
+								-->
+							</Border>
+							<Border Height="{Binding ElementName=image1_border123, Path=Height}" Width="{Binding ElementName=image1_border123, Path=Width}" HorizontalAlignment="Center" VerticalAlignment="Center">
+								<!--
+								<ImageBrush Stretch="UniformToFill" x:Name="image2">
+									<ImageBrush.Transform>
+										<ScaleTransform ScaleX="1" ScaleY="-1" CenterX="200" CenterY="98">
+										</ScaleTransform>
+									</ImageBrush.Transform>
+								</ImageBrush>
+								-->
+								<TextBlock Text="{Binding ElementName=testing_123_block, Path=Text}" FontSize="{Binding ElementName=testing_123_block, Path=FontSize}">
+									<TextBlock.RenderTransform>
+										<ScaleTransform ScaleX="1" ScaleY="-1" CenterX="0" CenterY="25"></ScaleTransform>
+									</TextBlock.RenderTransform>
+								</TextBlock>
+								<Border.OpacityMask>
+									<LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+										<GradientStop Offset="0" Color="Black"></GradientStop>
+										<GradientStop Offset="0.6" Color="Transparent"></GradientStop>
+									</LinearGradientBrush>
+								</Border.OpacityMask>
+
+								<Border.RenderTransform>
+									<SkewTransform CenterX="30" CenterY="1" AngleX="-30" AngleY="3" />
+								</Border.RenderTransform>
+
+							</Border>
+						</StackPanel>
+
+					</Grid>
+
+				</TabItem>
+                
+            </TabControl>
+        </Grid>
+    </Grid>
+
+
+
+</Window>

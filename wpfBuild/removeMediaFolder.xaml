@@ -1,0 +1,39 @@
+﻿<Window x:Class="wpfBuild.removeMediaFolder"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="removeMediaFolder" Height="202" Width="402" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" FontFamily="./Fonts\#Century Gothic" AllowsTransparency="True" Background="Transparent" WindowStyle="None" Closed="Window_Closed">
+
+    <Border CornerRadius="10" Background="#CF000000">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition />
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+
+
+
+            <Label Grid.Row="0" Name="label1" VerticalAlignment="Top" HorizontalAlignment="Stretch" FontSize="30" FontWeight="Bold" Foreground="DodgerBlue">Warning!</Label>
+            <StackPanel Orientation="Horizontal" Grid.Row="1">
+                <Label HorizontalAlignment="Stretch" Foreground="#FFEFEFEF">This will remove </Label>
+                <Label Name="label_item_count" Foreground="#FFEFEFEF" FontWeight="bold">XX</Label>
+                <Label Foreground="#FFEFEFEF"> media items belonging to the selected folders!</Label>
+                
+            </StackPanel>
+            
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Margin="0,0,5,0" Width="75" Height="30" Template="{DynamicResource GlassButton}" Click="Button_Click">Remove</Button>
+                <Button Margin="5,0,0,0" Width="75" Height="30" Template="{DynamicResource GlassButton}" Click="Button_Click_1">Cancel</Button>
+                <Label Visibility="Collapsed" Name="folder_id_array"></Label>
+            </StackPanel>
+
+            <ProgressBar Grid.Row="3" Name="remove_progress" Height="30" Margin="10" Background="{DynamicResource glassBorderBG}" Visibility="Hidden"></ProgressBar>
+
+        </Grid>
+    </Border>
+</Window>

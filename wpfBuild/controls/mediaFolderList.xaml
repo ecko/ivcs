@@ -1,0 +1,76 @@
+﻿<UserControl x:Class="wpfBuild.controls.mediaFolderList" x:Name="UserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="clr-namespace:wpfBuild.controls">
+	<UserControl.Resources>
+		<Storyboard x:Key="load" />
+
+		<local:BackgroundConverter x:Key="myConverter" />
+
+		<Style x:Key="alternatingItemStyle" TargetType="{x:Type ListViewItem}">
+			<Setter Property="Background">
+				<Setter.Value>
+					<Binding RelativeSource="{RelativeSource Self}" Converter="{StaticResource myConverter}" />
+				</Setter.Value>
+			</Setter>
+		</Style>
+		
+		<DataTemplate x:Key="ItemTemplate">
+			<!-- This height will cause problems if the folder path goes on to multiple lines... -->
+			<Grid Height="40" Width="{Binding ElementName=UserControl,Path=ActualWidth}" Margin="-5,2,-5,-6">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition />
+				</Grid.RowDefinitions>
+				
+				<Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" BorderBrush="Black" BorderThickness="0" CornerRadius="0,7,7,0" HorizontalAlignment="Center" VerticalAlignment="Center" Height="20" Width="20" Margin="5,2,5,2">
+					<Border.Background>
+						<ImageBrush ImageSource="{Binding Path=FolderTypeImage}" Stretch="Uniform"></ImageBrush>
+					</Border.Background>
+				</Border>
+
+				<TextBlock FontSize="15" Foreground="#F2F2F2" Grid.Column="1" Grid.Row="0" Text="{Binding Path=FolderPath}" Margin="0,0,0,-3" TextWrapping="Wrap" />
+
+				<StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Stretch">
+					<TextBlock FontSize="13" Foreground="#BFBFBF" Text="Files: " />
+					<TextBlock FontSize="13" Foreground="#8C8C8C" Text="{Binding Path=NumFiles}" Width="70" />
+					
+					<TextBlock FontSize="13" Foreground="#BFBFBF" Text="Folders: " Margin="5,0,0,0" />
+					<TextBlock FontSize="13" Foreground="#8C8C8C" Text="{Binding Path=NumFolders}" />
+				</StackPanel>
+			</Grid>
+		</DataTemplate>
+	</UserControl.Resources>
+
+	<UserControl.Triggers>
+		<EventTrigger RoutedEvent="FrameworkElement.Loaded">
+			<BeginStoryboard Storyboard="{StaticResource load}" />
+		</EventTrigger>
+	</UserControl.Triggers>
+
+	<ScrollViewer x:Name="myScrollViewer" BorderThickness="0" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
+		<ListView x:Name="listItems" BorderThickness="0" ItemContainerStyle="{StaticResource alternatingItemStyle}" Style="{DynamicResource ListViewStyle1}" Background="Transparent" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.IsVirtualizing="True"
+				  SelectionChanged="listItems_SelectionChanged"
+				  >
+			<ListView.Resources>
+				<SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#0E273B" Opacity="1" />
+				<SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#0E273B" Opacity="1" />
+			</ListView.Resources>
+			<ListView.View>
+				<GridView x:Name="gvItems">
+					<GridView.ColumnHeaderContainerStyle>
+						<Style TargetType="{x:Type GridViewColumnHeader}">
+							<Setter Property="Visibility" Value="Collapsed" />
+							<Setter Property="Height" Value="0" />
+						</Style>
+					</GridView.ColumnHeaderContainerStyle>
+					<GridViewColumn CellTemplate="{StaticResource ItemTemplate}" />
+				</GridView>
+			</ListView.View>
+		</ListView>
+	</ScrollViewer>
+</UserControl>
