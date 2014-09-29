@@ -1,0 +1,34 @@
+taskbarToggle.cs		- 31
+tab_OBD.cs				- 241
+logging.cs				- 32
+tab_video.cs			- 470
+playlistControl.xaml.cs	- 353
+custJournal.xaml.cs		- 306
+tab_audio.cs			- 907
+tab_media_management.cs	- 1098
+audioSystem.cs			- 683
+Window1.xaml.cs			- 1930
+mediaFolderList.xaml.cs	- 300
+dateTime.cs				- 48
+mediaTypes.cs			- 78
+mediaFolderListData.cs	- 110
+tab_datTime.cs			- 100
+===============================
+						6687
+
+
+
+
+UI
+App.xaml				- 1134
+playlistControl.xaml	- 124
+custJournal.xaml		- 163
+Window1.xaml			- 1254
+mediaFolderList.xaml	- 77
+===============================
+						2752
+						
+						
+
+===============================
+9439
